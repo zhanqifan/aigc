@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+      // 根路径
+      "baseUrl": ".",
+      // 设置别名
+      "paths": {
+          "@/*":["./*"]
+      }
+  },
+      //将第三方模块排除在外
+  "exclude": ["node_modules"]
+}
