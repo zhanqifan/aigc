@@ -6,6 +6,11 @@ const dbConfig={
     dialect:'mysql',
     port:3306
 }
+const weixin ={
+    appid:'wx3ee6184958a78513',//小程序appid
+    secret:'bd0deb76f51043fd3e56dc0b38c0bfd9',//小程序密钥
+}
 module.exports={
-    dbConfig
+    dbConfig,
+    weixin
 }

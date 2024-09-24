@@ -7,11 +7,14 @@ const db =new Sequelize(dbConfig.database,dbConfig.userName,dbConfig.password,{
     port:dbConfig.port,
     define:{
         freezeTableName:true,//是否自动将表名复数 true:禁止
+        timestamps: false // 是否自动添加时间戳字段
     },
     logging:false,// 日志输出
     sync:{
         force:false// 不会强制删除现有表并且重新创建
-    } 
+    }, 
+
+    
 })
 db.sync()//如果表不存在就会自动创建(如果已经存在,不执行任何操作)
 
