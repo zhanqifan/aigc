@@ -1,7 +1,8 @@
 import { useMemberStore } from '@/stores/modules/user'
+import { aiChatStore } from '@/stores/modules/aiStore'
 /* eslint-disable */
 const baseURL = import.meta.env.VITE_BASE_URL
-let buffer = ''
+    let buffer = ''
 const httpInterceptor = {
   // 拦截前触发
   invoke(options: UniApp.RequestOptions) {
@@ -83,12 +84,13 @@ export const request = <T>(option: UniApp.RequestOptions) => {
       requesTask.onChunkReceived((res: any) => {
         let arrayBuffer = res.data
         let text = ''
+
         const newBuffer = new Uint8Array(arrayBuffer)
         for (let i = 0; i < newBuffer.length; i++) {
           text += String.fromCharCode(newBuffer[i])
         }
 
-        buffer+=decodeURIComponent(encodeURI(text))
+        buffer +=decodeURIComponent(escape(text))
       	while(buffer.includes('\n')){
           const index = buffer.indexOf('\n')
           // 留下需要的
@@ -96,7 +98,9 @@ export const request = <T>(option: UniApp.RequestOptions) => {
           // 去掉已经处理过
           buffer = buffer.slice(index + 1)
           // 判断以data:开头并且不含有data: [DONE]
-          console.log(buffer)
+          if(chunk.startsWith('data:') && !chunk.includes('[DONE]')){
+           const jsonData=  JSON.parse(  chunk.replace('data: ',''))
+          }
         }
       })
     }
