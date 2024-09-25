@@ -1,5 +1,4 @@
 const logger =require('@/loggerMiddleware')
-const dayjs =require('dayjs')
 const errorHandler = async (ctx, next) => {
     try {
         await next();
@@ -9,19 +8,20 @@ const errorHandler = async (ctx, next) => {
     
         // 接受参数校验的错误
         if(err.code){
-            const {code,msg} =err
+            const {code,data} =err
+            console.log(err)
             ctx.body = {
                 msg:'客户端错误',
-                message:msg||'异常错误',
+                data:data||'异常错误',
                 code:code || 500
             };
             ctx.status = code || 500;
-            console.log('错误捕获-客户端错误',err.msg)
+            console.log('错误捕获-客户端错误',err.data)
         }else{
             console.log('错误捕获',err.message)
             ctx.body = {
                 msg:'服务端错误',
-                message:err.message||'异常错误',
+                data:err.message||'异常错误',
                 code: err.status || 500
             };
             ctx.status = err.status || 500;

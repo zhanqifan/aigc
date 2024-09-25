@@ -1,4 +1,4 @@
-* 项目安装依赖koa koa-json koa-bodyparser @koa/router @koa/cors module-alias logjs dayjs nodemon  sequelize mysql2
+* 项目安装依赖koa koa-json koa-bodyparser @koa/router @koa/cors module-alias logjs dayjs nodemon  sequelize mysql2 zhipuai-sdk-nodejs-v4
 * squelize文档地址(https://github.com/demopark/sequelize-docs-Zh-CN/blob/master/core-concepts/getting-started.md)
 ** 示例
 const Koa =require("koa")

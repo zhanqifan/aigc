@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { aiChatStore } from '@/stores/modules/aiStore'
+const aiChat = aiChatStore()
 const show = ref(true)
 const textarea = reactive({
   autoHeight: true, //自动增高
   alignItems: 'center',
   height: 0,
 })
-const instance = getCurrentInstance()
+const instance = getCurrentInstance() //获取当前实例
 const lineChange = (e: UniHelper.TextareaOnLinechangeEvent) => {
   console.log(e)
   const { height, lineCount } = e.detail
@@ -19,8 +21,8 @@ const lineChange = (e: UniHelper.TextareaOnLinechangeEvent) => {
     textarea.autoHeight = true
   }
 }
-const inpContent = ref('')
-const showAudio = ref(true)
+const inpContent = ref('') //输入框的值
+const showAudio = ref(false)
 const textareaHeight = ref('')
 // 声波动画数据
 const barData = ref([
@@ -45,17 +47,19 @@ const barData = ref([
   '0.2s',
   '0.1s',
 ])
-
+const sengMsg = () => {
+  aiChat.startSending(inpContent.value)
+}
 onMounted(() => {
   setTimeout(() => {
-    const query = uni.createSelectorQuery().in(instance)
+    const query = uni.createSelectorQuery().in(instance) //获取当前页面的节点
     query
       .select('.input-content')
       .boundingClientRect((res: any) => {
-        console.log(res)
-        textareaHeight.value = res.height + 'px'
+        //获取元素信息
+        textareaHeight.value = res.height + 'px' //修改元素高度
       })
-      .exec()
+      .exec() //执行
   }, 100)
 })
 </script>
@@ -80,7 +84,7 @@ onMounted(() => {
       ></textarea>
     </view>
     <view class="speech-sound" v-show="!show">按住说话</view>
-    <image src="@/static/fasong.png" mode="widthFix" />
+    <image src="@/static/fasong.png" mode="widthFix" @click="sengMsg" />
   </view>
   <!-- 语言录制弹窗 -->
   <view class="mask-view" v-if="showAudio"> </view>

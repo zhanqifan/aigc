@@ -6,8 +6,7 @@
 // serviceCode //业务错误码
 
 const responseHanlder = async(ctx,next)=>{
-    ctx.send=(data=null,code=200,msg='success',error=null)=>{
-       console.log(code)
+    ctx.send=({data=null,code=200,msg='success',error=null})=>{
         ctx.body={
             data,
             code,

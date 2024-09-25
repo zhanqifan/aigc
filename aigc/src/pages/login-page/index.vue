@@ -11,6 +11,13 @@ const onChooseAvatar = (e: UniHelper.ButtonOnChooseaddressEvent) => {
 const computeAvatar = computed(() => {
   return userInfo.avatar !== '' ? userInfo.avatar : '/static/touxiang.png'
 })
+const toLogin = () => {
+  wx.login({
+    success: function (loginRes) {
+      console.log(loginRes)
+    },
+  })
+}
 const formSubmit = () => {}
 </script>
 <template>
@@ -22,7 +29,7 @@ const formSubmit = () => {}
     </button>
     <form class="form-submit" @submit="formSubmit">
       <input v-model="userInfo.name" class="input-style" placeholder="请输入昵称" />
-      <button class="submit-button" :loading="isLoading">登录</button>
+      <button class="submit-button" :loading="isLoading" @click="toLogin">登录</button>
     </form>
   </view>
 </template>

@@ -7,11 +7,11 @@ import { buttonPosition } from '@/hook/buttonPosition'
 // ai绘图
 // import aiDrawing from './component/ai-drawing.vue'
 // 底部输入框
-// import inputArea from './component/input-box.vue'
+import inputArea from './component/input-box.vue'
 // 个人中心
 // import personCenter from '@/pages/personalCenter/index.vue'
 // 登录页面
-import loginPage from '@/pages/login-page/index.vue'
+// import loginPage from '@/pages/login-page/index.vue'
 const menu = ref(['我的', '对话', 'AI绘画'])
 const { but_button, but_height, but_top } = buttonPosition()
 </script>
@@ -29,12 +29,12 @@ const { but_button, but_height, but_top } = buttonPosition()
   <!-- <chatArea /> -->
   <!-- AI绘画 -->
   <!-- <aiDrawing /> -->
-  <!-- 输入框 -->
-  <!-- <inputArea /> -->
+  <!-- 底部输入框 -->
+  <inputArea />
   <!-- 个人中心 -->
   <!-- <personCenter /> -->
   <!-- 登录页 -->
-  <loginPage />
+  <!-- <loginPage /> -->
 </template>
 
 <style lang="scss">

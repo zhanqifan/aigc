@@ -12,7 +12,11 @@ class UserService {
          grant_type:'authorization_code'
      })
      const res =await axios.get(`https://api.weixin.qq.com/sns/jscode2session?${query}`)
-     console.log(res)
+     if (res.data.errcode) {
+       throw {data:{errmsg:res.data.errmsg,errcode:res.data.errcode},code:400}
+      } else {
+        return res.data.openid;
+      }
     }
 }
 module.exports = UserService

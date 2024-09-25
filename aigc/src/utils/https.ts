@@ -1,11 +1,10 @@
-import { useMemberStore } from '@/stores'
+import { useMemberStore } from '@/stores/modules/user'
 /* eslint-disable */
 const baseURL = import.meta.env.VITE_BASE_URL
-
+let buffer = ''
 const httpInterceptor = {
   // 拦截前触发
   invoke(options: UniApp.RequestOptions) {
-    let method = options.method
     // 1. 非 http 开头需拼接地址
     if (!options.url.startsWith('http')) {
       options.url = baseURL + options.url
@@ -37,15 +36,16 @@ interface Data<T> {
   msg: string //响应成功
   data: T //接口的这一项返回类型不确定 所以用泛型定义
 }
+
 // 响应拦截器
 export const request = <T>(option: UniApp.RequestOptions) => {
   return new Promise<Data<T>>((resolve, reject) => {
-    uni.request({
+    const requesTask = uni.request({
       ...option,
       // 请求成功
       success(result) {
         const data = result.data as Data<T>
-        const code = data.code
+        const code = data.code || result.statusCode
         if (code >= 200 && code < 300) {
           resolve(result.data as Data<T>)
         } else if (code === 401) {
@@ -79,5 +79,26 @@ export const request = <T>(option: UniApp.RequestOptions) => {
         reject(err)
       },
     })
+    if (option.enableChunked) {
+      requesTask.onChunkReceived((res: any) => {
+        let arrayBuffer = res.data
+        let text = ''
+        const newBuffer = new Uint8Array(arrayBuffer)
+        for (let i = 0; i < newBuffer.length; i++) {
+          text += String.fromCharCode(newBuffer[i])
+        }
+
+        buffer+=decodeURIComponent(encodeURI(text))
+      	while(buffer.includes('\n')){
+          const index = buffer.indexOf('\n')
+          // 留下需要的
+          const chunk = buffer.slice(0,index)
+          // 去掉已经处理过
+          buffer = buffer.slice(index + 1)
+          // 判断以data:开头并且不含有data: [DONE]
+          console.log(buffer)
+        }
+      })
+    }
   })
 }
