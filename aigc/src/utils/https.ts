@@ -98,8 +98,11 @@ export const request = <T>(option: UniApp.RequestOptions) => {
           // 去掉已经处理过
           buffer = buffer.slice(index + 1)
           // 判断以data:开头并且不含有data: [DONE]
-          if(chunk.startsWith('data:') && !chunk.includes('[DONE]')){
+          console.log(chunk)
+          if(chunk.startsWith('data: ') && !chunk.includes('[DONE]')){
            const jsonData=  JSON.parse(  chunk.replace('data: ',''))
+          //  console.log(jsonData)
+           aiChatStore().handleText(jsonData)
           }
         }
       })

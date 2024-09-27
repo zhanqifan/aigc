@@ -6,8 +6,8 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
-declare module '@dcloudio/uni-app' {
-  interface RequestTask {
-    onChunkReceived?: (callback: (res: any) => void) => void
-  }
-}
+// declare module '@dcloudio/uni-app' {
+//   interface RequestTask {
+//     onChunkReceived?: (callback: (res: any) => void) => void
+//   }
+// }

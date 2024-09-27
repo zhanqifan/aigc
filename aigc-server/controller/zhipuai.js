@@ -35,6 +35,22 @@ class ZhipuaiController{
             ctx.res.write(chunk)//将数据逐个写入http响应中
         }
     }
+    // 文生图
+    async createImages(ctx){
+      const {prompt} = ctx.request.body
+      await Validate.undeinedCheck(prompt,'缺少prompt参数','prompt')
+      const imageData = await ai.createImages({
+       model:"cogview-3",
+       prompt,
+      })
+      ctx.send({
+        data:{
+            url:imageData.data[0].url,
+            prompt:'我已为你生成对应的图片,你可以继续问我'
+        }
+      })
+    }
+  
 }
 
 module.exports=new ZhipuaiController()

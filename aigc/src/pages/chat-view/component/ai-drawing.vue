@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getChatAiImg } from '@/api/chatAi'
 const styleList = ref([
   {
     icon: '/static/fengge/001.png',
@@ -46,7 +47,65 @@ const styleList = ref([
     color: '#cc3300',
   },
 ])
+type ImageItem = {
+  url: string
+  prompt: string
+}
+const createImage = ref<ImageItem[]>([
+  {
+    url: '',
+    prompt: '',
+  },
+])
+const describe = ref()
+const isDrawing = ref(false)
+const isLoading = ref(false)
+const startSending = async (prompt: string) => {
+  isLoading.value=true
+  createImage.value = [
+    {
+      url: '',
+      prompt: 'AI正在生成中',
+    },
+  ]
+  try {
+    const res = await getChatAiImg({ prompt })
+
+    if (res.code == 400) {
+      createImage.value = [
+        {
+          url: res.data.url,
+          prompt: res.data.message,
+        },
+      ]
+    } else {
+      createImage.value = [
+        {
+          url: res.data.url,
+          prompt: prompt,
+        },
+      ]
+    }
+    isDrawing.value = true
+    isLoading.value=false
+  } catch (error) {
+    createImage.value = [
+      {
+        url: '',
+        prompt: error.data.data.msg||'生成失败',
+      },
+    ]
+    isDrawing.value = false
+    isLoading.value=false
+  }
+}
+
 const isSelect = ref(0)
+const previewMedia = (url:string)=>{
+  uni.previewImage({
+    urls: [url],
+  })
+}
 </script>
 <template>
   <view class="style-title">生成风格</view>
@@ -68,15 +127,23 @@ const isSelect = ref(0)
   <view class="textarea-view">
     <textarea
       class="textarea-style"
+      v-model="describe"
       placeholder="请输入中文描述,比如画一位女子,身穿汉服,手拿佩剑,眼神凌厉。"
     />
   </view>
   <!-- 生成效果 -->
-  <view class="creative-tips">AI正在绘图中</view>
-  <view class="creative-image">
-    <image src="@/static/logo.png" mode="widthFix" />
+  <view class="creative-tips">{{ createImage[0].prompt }}</view>
+  <view class="creative-image" v-show="isDrawing">
+    <image :src="createImage[0].url" mode="widthFix" @click="previewMedia(createImage[0].url)"/>
   </view>
-  <button class="submit-creation">生成图片</button>
+  <button
+    class="submit-creation"
+    @click="startSending(`${describe},风格:${styleList[isSelect].style}`)"
+    :loading="isLoading"
+    :disabled="isLoading"
+   >
+    生成图片
+  </button>
 </template>
 
 <style lang="scss" scoped>

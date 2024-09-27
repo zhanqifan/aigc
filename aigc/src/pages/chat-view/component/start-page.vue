@@ -8,6 +8,8 @@ import M6 from '@/static/start-page/m6.png'
 import M7 from '@/static/start-page/m7.png'
 import M8 from '@/static/start-page/m8.png'
 import { onLoad } from '@dcloudio/uni-app'
+import { aiChatStore } from '@/stores/modules/aiStore'
+const aiChat =aiChatStore()
 const problemData = [
   {
     icon: M1,
@@ -67,6 +69,10 @@ const rendomData = (val: boolean) => {
   }
 }
 const isRoating = ref(false)
+
+const send =(val:string) =>{
+  aiChat.startSending(val)
+}
 onLoad(() => {
   rendomData(false)
 })
@@ -87,7 +93,7 @@ onLoad(() => {
       >
     </view>
     <view class="default-questions">
-      <view class="default-question-item" v-for="(item, index) in newData" :key="index">
+      <view class="default-question-item" v-for="(item, index) in newData" :key="index" @click="send(item.problem)">
         <image :src="item.icon" mode="widthFix"></image>
         <view class="text-ellipsis">{{ item.title }}</view>
         <text class="text-show ellipsis">{{ item.problem }}</text>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { aiChatStore } from '@/stores/modules/aiStore'
+import { inProgress } from '@/stores/modules/isProgress'
 const aiChat = aiChatStore()
 const show = ref(true)
 const textarea = reactive({
@@ -48,7 +49,27 @@ const barData = ref([
   '0.1s',
 ])
 const sengMsg = () => {
-  aiChat.startSending(inpContent.value)
+  if (inProgress().queryValue()) return false
+  if (inpContent.value.trim() === '') return false
+  aiChat.startSending(inpContent.value.trim())
+  inpContent.value = '' //发送完毕清空输入框
+}
+// 获取全局录音管理器
+const audio = uni.getRecorderManager()
+const longpress = () => {
+
+  showAudio.value = true
+      audio.start({
+        format: 'PCM',
+        frameSize: 4,
+      })
+}
+audio.onFrameRecorded((e) => {
+  console.log('录音数据', e)
+})
+const touchend = () => {
+  showAudio.value = false
+  audio.stop()
 }
 onMounted(() => {
   setTimeout(() => {
@@ -62,13 +83,29 @@ onMounted(() => {
       .exec() //执行
   }, 100)
 })
+const getAudioAuthorize=(e:boolean)=>{
+  uni.authorize({
+    scope: 'scope.record',
+    success() {
+      show.value = e
+    },
+    fail: (fail) => {
+      uni.showToast({
+        title:'请先打开系统设置允许录音权限',
+        icon: 'none',
+      })
+      showAudio.value = false
+    },
+  })
+}
 </script>
 <template>
   <view class="input-box-area">
     <image
-      @click="show = !show"
+      @click="getAudioAuthorize(!show)"
       :src="show ? '/static/yuyin.png' : '/static/jianpan.png'"
       mode="widthFix"
+
     />
     <view class="input-content" v-show="show">
       <textarea
@@ -83,7 +120,9 @@ onMounted(() => {
         @linechange="lineChange"
       ></textarea>
     </view>
-    <view class="speech-sound" v-show="!show">按住说话</view>
+    <view class="speech-sound" v-show="!show" @longpress="longpress" @touchend="touchend"
+      >按住说话</view
+    >
     <image src="@/static/fasong.png" mode="widthFix" @click="sengMsg" />
   </view>
   <!-- 语言录制弹窗 -->

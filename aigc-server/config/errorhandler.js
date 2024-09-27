@@ -17,7 +17,20 @@ const errorHandler = async (ctx, next) => {
             };
             ctx.status = code || 500;
             console.log('错误捕获-客户端错误',err.data)
-        }else{
+        }else if(err.error){
+            //  智谱ai的错误
+            ctx.body = {
+                msg:'ai错误',
+                data:{
+                    code:400,
+                    msg:err.error.message
+                },
+                code:400
+            };
+            ctx.status = 200;
+            console.log('错误捕获-ai错误',err)
+        }
+        else{
             console.log('错误捕获',err.message)
             ctx.body = {
                 msg:'服务端错误',

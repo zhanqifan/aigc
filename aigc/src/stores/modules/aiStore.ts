@@ -2,6 +2,7 @@
 // prettier-ignore
 import { defineStore } from 'pinia'
 import { getChatAi } from '@/api/chatAi'
+import {inProgress} from './isProgress'
 // 定义 Store
 export const aiChatStore = defineStore(
   'aiChatStore',
@@ -10,6 +11,7 @@ export const aiChatStore = defineStore(
     const messages = ref<any>([]) //存储聊天记录
     const receiveText = ref('')//接受大模型返回的文本数据
     const startSending = async (content: string) => {
+      receiveText.value = ''
       //content:发送的值
       messages.value.push({ "role": "user", content })
       messages.value.push(
@@ -21,6 +23,7 @@ export const aiChatStore = defineStore(
         },
       )
       // 对话正在进行中
+      inProgress().isProcess=true
       /*
 			 finish_reason：
 				start：开始中，
@@ -35,8 +38,13 @@ export const aiChatStore = defineStore(
       try {
         await getChatAi({ messages: messages.value }, true)
       } catch (error) {
-        console.log(error)
+        messages.value[messages.value.length - 1].finish_reason= 'stop'
+        messages.value[messages.value.length - 1].content = '服务器异常,请稍后重试'
+// .        console.log(error)
+        inProgress().setProcess(false)
+
       }
+      console.log('完整回复',messages.value)
     }
     const handleText = (objVal) =>{
       // 服务器开始响应
@@ -44,7 +52,7 @@ export const aiChatStore = defineStore(
       // 把大模型的文本追加不断拼接
       receiveText.value += objVal.choices[0].delta.content ||''
       // 把文本追加到ai的回复中
-      messages.value[messages.value.length - 1].content += receiveText.value
+      messages.value[messages.value.length - 1].content = receiveText.value
       // 判断是否回复完毕
       if(objVal.choices[0].finish_reason){
         // 存储结束状态
@@ -61,15 +69,28 @@ export const aiChatStore = defineStore(
             messages.value[messages.value.length - 1].content = item.content
           }
         })
+        inProgress().setProcess(false)
       }
     }
     // 记得 return
     return {
+      messages,
       startSending,
+      handleText
     }
   },
   // TODO: 持久化
   {
-    persist: true,
+    persist: {
+      // 调整为兼容多端的API
+      storage: {
+        setItem(key, value) {
+          uni.setStorageSync(key, value)
+        },
+        getItem(key) {
+          return uni.getStorageSync(key)
+        },
+      },
+    },
   },
 )
