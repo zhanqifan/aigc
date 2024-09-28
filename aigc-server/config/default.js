@@ -14,10 +14,15 @@ const weixin ={
 const zhipu={
     apiKey:'ba327cfbea9af50f529e4dbd3a684e7f.yIuRcA4XI4R1w8LU',
 }
-
+// 语音识别密钥
+const Aliyunaudio={
+    accessKeyId:'LTAI5tAvunE3RBmQLqAstWW4',
+    accessKeySecret:'FqHpXIT21dkbENwkjuuYXUiHw6lvPk',
+}
 
 module.exports={
     dbConfig,
     weixin,
-    zhipu
+    zhipu,
+    Aliyunaudio
 }

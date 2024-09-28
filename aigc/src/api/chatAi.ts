@@ -17,3 +17,10 @@ export const getChatAiImg = (params: any) => {
     data: params,
   })
 }
+// 获取阿里云语音token
+export const AliAudioToken = () => {
+  return request<any>({
+    url: '/ai/audioToken',
+    method: 'GET',
+  })
+}

@@ -29,6 +29,7 @@ class ZhipuaiController{
             ]
         })
         ctx.status=200
+        console.log(JSON.parse)
         // 遍历异步可迭代对象
         for await (const chunk of data) {
             console.log(chunk.toString())

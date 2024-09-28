@@ -23,7 +23,7 @@ export const aiChatStore = defineStore(
         },
       )
       // 对话正在进行中
-      inProgress().isProcess=true
+      inProgress().setProcess(true)
       /*
 			 finish_reason：
 				start：开始中，

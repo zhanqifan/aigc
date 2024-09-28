@@ -13,7 +13,7 @@ export const inProgress =  defineStore(
 					icon:'none',
 					title:'当前业务正在进行中'
 				})
-				return true
+
 			}
 		}
     return {

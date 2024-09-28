@@ -1,4 +1,22 @@
-* 项目安装依赖koa koa-json koa-bodyparser @koa/router @koa/cors module-alias logjs dayjs nodemon  sequelize mysql2 zhipuai-sdk-nodejs-v4
+* 项目安装依赖
+*   "dependencies": {
+*  "@koa/cors": "^5.0.0",
+    "@koa/router": "^13.1.0",
+    "dayjs": "^1.11.13",
+    "koa": "^2.15.3",
+    "koa-bodyparser": "^4.4.1",
+    "koa-json": "^2.0.2",
+    "log4js": "^6.9.1",
+    "mysql2": "^3.11.3",
+    "nodemon": "^3.1.7",
+    "sequelize": "^6.37.3",
+    "zhipuai-sdk-nodejs-v4": "^0.1.12"
+     "ioredis": "^5.4.1",
+    }
+     "devDependencies": {
+    "axios": "^1.7.7",
+    "module-alias": "^2.2.3"
+  }
 * squelize文档地址(https://github.com/demopark/sequelize-docs-Zh-CN/blob/master/core-concepts/getting-started.md)
 ** 示例
 const Koa =require("koa")

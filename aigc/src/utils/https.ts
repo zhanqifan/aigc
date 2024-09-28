@@ -1,5 +1,6 @@
 import { useMemberStore } from '@/stores/modules/user'
 import { aiChatStore } from '@/stores/modules/aiStore'
+import { inProgress } from '@/stores/modules/isProgress'
 /* eslint-disable */
 const baseURL = import.meta.env.VITE_BASE_URL
     let buffer = ''
@@ -89,22 +90,25 @@ export const request = <T>(option: UniApp.RequestOptions) => {
         for (let i = 0; i < newBuffer.length; i++) {
           text += String.fromCharCode(newBuffer[i])
         }
-
-        buffer +=decodeURIComponent(escape(text))
+        try {
+          buffer +=decodeURIComponent(escape(text))
       	while(buffer.includes('\n')){
-          const index = buffer.indexOf('\n')
+          const index = buffer.lastIndexOf('\n')
           // 留下需要的
           const chunk = buffer.slice(0,index)
           // 去掉已经处理过
           buffer = buffer.slice(index + 1)
           // 判断以data:开头并且不含有data: [DONE]
-          console.log(chunk)
           if(chunk.startsWith('data: ') && !chunk.includes('[DONE]')){
-           const jsonData=  JSON.parse(  chunk.replace('data: ',''))
+            const jsonData=  JSON.parse(chunk.replace('data: ',''))
           //  console.log(jsonData)
            aiChatStore().handleText(jsonData)
           }
         }
+        } catch (error) {
+          inProgress().setProcess(false)
+        }
+
       })
     }
   })
