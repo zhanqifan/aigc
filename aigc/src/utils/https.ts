@@ -21,7 +21,7 @@ const httpInterceptor = {
 
     // 4. 添加 token 请求头标识
     const memberStore = useMemberStore()
-    const token = memberStore.profile?.access_token
+    const token = memberStore.profile?.token
     if (token) {
       options.header.Authorization = 'Bearer ' + token
     }
@@ -31,7 +31,7 @@ const httpInterceptor = {
 // 拦截 request 请求
 uni.addInterceptor('request', httpInterceptor)
 // 拦截 uploadFile 文件上传
-// uni.addInterceptor('uploadFile', httpInterceptor)
+uni.addInterceptor('uploadFile', httpInterceptor)
 
 interface Data<T> {
   code: number //响应状态码
@@ -54,9 +54,9 @@ export const request = <T>(option: UniApp.RequestOptions) => {
           //401无token
           const Member = useMemberStore()
           Member.clearProfile()
-          uni.reLaunch({
-            url: '/pages/login/login',
-          })
+          // uni.reLaunch({
+          //   url: '/pages/login/login',
+          // })
           reject(result)
           uni.showToast({
             title: '登录过期',
@@ -93,13 +93,19 @@ export const request = <T>(option: UniApp.RequestOptions) => {
         try {
           buffer +=decodeURIComponent(escape(text))
       	while(buffer.includes('\n')){
-          const index = buffer.lastIndexOf('\n')
+          const index = buffer.indexOf('\n')
           // 留下需要的
           const chunk = buffer.slice(0,index)
           // 去掉已经处理过
           buffer = buffer.slice(index + 1)
+
           // 判断以data:开头并且不含有data: [DONE]
-          if(chunk.startsWith('data: ') && !chunk.includes('[DONE]')){
+          if(chunk.startsWith('OKdata: ') && !chunk.includes('[DONE]')){
+            const jsonData=  JSON.parse(chunk.replace('OKdata: ',''))
+            //  console.log(jsonData)
+             aiChatStore().handleText(jsonData)
+          }
+          else if(chunk.startsWith('data: ') && !chunk.includes('[DONE]')){
             const jsonData=  JSON.parse(chunk.replace('data: ',''))
           //  console.log(jsonData)
            aiChatStore().handleText(jsonData)

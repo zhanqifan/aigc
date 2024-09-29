@@ -142,49 +142,49 @@ const getAudioAuthorize = (e: boolean) => {
   })
 }
 const storageArr = ref<any>([])
-onLoad(async () => {
-  const token = await AliAudioToken()
-  const st = new SpeechTranscription({
-    url: 'wss://nls-gateway.cn-shanghai.aliyuncs.com/ws/v1',
-    token: token.data,
-    appkey: 'O8YHjVFyH6SX4nki',
-  })
-  aliVoice.value = st
-  // 实时语音识别中间结果(边说边出文字)
-  st.on('changed', (msg: any) => {
-    console.log('Client recv changed:', msg)
-    const {payload} =JSON.parse(msg)
-    const find= storageArr.value.findIndex(item=>item.index===payload.index)
-    if(find>=0){
-      storageArr.value[find].result=payload.result
-    }else{
-      storageArr.value.push(payload)
-    }
-  })
-  // 提示句子开始。
-  st.on('begin', (msg: any) => {
-    console.log('Client recv 开始:', msg)
-  })
-  // 提示句子结束。纠正
-  st.on('end', (msg: any) => {
-    console.log('Client recv 结束:', msg)
-    const {payload} =JSON.parse(msg)
-    const find= storageArr.value.findIndex(item=>item.index===payload.index)
-    if(find>=0){
-      storageArr.value[find].result=payload.result
-    }else{
-      storageArr.value.push(payload)
-    }
-  })
+// onLoad(async () => {
+//   const token = await AliAudioToken()
+//   const st = new SpeechTranscription({
+//     url: 'wss://nls-gateway.cn-shanghai.aliyuncs.com/ws/v1',
+//     token: token.data,
+//     appkey: 'O8YHjVFyH6SX4nki',
+//   })
+//   aliVoice.value = st
+//   // 实时语音识别中间结果(边说边出文字)
+//   st.on('changed', (msg: any) => {
+//     console.log('Client recv changed:', msg)
+//     const {payload} =JSON.parse(msg)
+//     const find= storageArr.value.findIndex(item=>item.index===payload.index)
+//     if(find>=0){
+//       storageArr.value[find].result=payload.result
+//     }else{
+//       storageArr.value.push(payload)
+//     }
+//   })
+//   // 提示句子开始。
+//   st.on('begin', (msg: any) => {
+//     console.log('Client recv 开始:', msg)
+//   })
+//   // 提示句子结束。纠正
+//   st.on('end', (msg: any) => {
+//     console.log('Client recv 结束:', msg)
+//     const {payload} =JSON.parse(msg)
+//     const find= storageArr.value.findIndex(item=>item.index===payload.index)
+//     if(find>=0){
+//       storageArr.value[find].result=payload.result
+//     }else{
+//       storageArr.value.push(payload)
+//     }
+//   })
 
-  st.on('failed', (msg: any) => {
-    console.log('Client recv 失败:', msg)
-    uni.showToast({
-      icon:'none',
-      title:'录音出现错误'
-    })
-  })
-})
+//   st.on('failed', (msg: any) => {
+//     console.log('Client recv 失败:', msg)
+//     uni.showToast({
+//       icon:'none',
+//       title:'录音出现错误'
+//     })
+//   })
+// })
 </script>
 <template>
   <view class="input-box-area">

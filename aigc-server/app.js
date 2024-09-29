@@ -16,6 +16,9 @@ app.use(json())//引入中间件
 app.use(bodyParser())
 app.use(cors())
 app.use(responseHandler).use(errorHandler);
+// app.use(async(ctx,next)=>{
+
+// })
 // 链接redis
 const redisClient= new KoaRedis({
     port: 6379,

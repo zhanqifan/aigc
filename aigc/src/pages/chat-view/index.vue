@@ -11,13 +11,14 @@ import inputArea from './component/input-box.vue'
 // 个人中心
 // import personCenter from '@/pages/personalCenter/index.vue'
 // 登录页面
-// import loginPage from '@/pages/login-page/index.vue'
+import loginPage from '@/pages/login-page/index.vue'
 import { aiChatStore } from '@/stores/modules/aiStore';
 import {selctNavIndex} from '@/stores/modules/tabBar'
+import {useMemberStore} from '@/stores/modules/user'
 const menu = ref(['我的', '对话', 'AI绘画'])
 const { but_button, but_height, but_top } = buttonPosition()
 const aiChat = aiChatStore()
-
+const user  =useMemberStore()
 const instance = getCurrentInstance();
 const selectIndex =  selctNavIndex()
 const selectTar =(index:number)=>{
@@ -54,7 +55,7 @@ const selectTar =(index:number)=>{
   <!-- 个人中心 -->
   <!-- <personCenter /> -->
   <!-- 登录页 -->
-  <!-- <loginPage /> -->
+  <loginPage v-if="!user.profile?.token"/>
   <view style="height:300rpx"></view>
 </template>
 

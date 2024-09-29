@@ -1,24 +1,64 @@
 <script setup lang="ts">
+import {ailogin} from '@/api/login'
+import {useMemberStore} from '@/stores/modules/user'
+const user = useMemberStore()
 const userInfo = reactive({
-  name: '',
+  nickName: '',
   avatar: '',
 })
 const isLoading = ref(false)
 const onChooseAvatar = (e: UniHelper.ButtonOnChooseaddressEvent) => {
+  console.log(e)
   const { avatarUrl } = e.detail
   userInfo.avatar = avatarUrl
+
 }
 const computeAvatar = computed(() => {
   return userInfo.avatar !== '' ? userInfo.avatar : '/static/touxiang.png'
 })
-const toLogin = () => {
-  wx.login({
-    success: function (loginRes) {
-      console.log(loginRes)
+// 头像上传
+const uploadImage  =()=>{
+  return new Promise((resolve, reject) => {
+ uni.uploadFile({
+    url:'/ai/avatar',
+    filePath:userInfo.avatar,
+    name:'avatar',
+    fileType:'image',
+    success:(success)=>{
+
+      resolve(JSON.parse(success.data)); // 返回成功的响应 JSON.parse(success.data)
     },
+    fail: (error) => {
+        console.error('上传失败:', error);
+        reject(error); // 处理失败情况
+      },
+  })
+})
+}
+const formSubmit = (e:any) => {
+
+  userInfo.nickName = e.detail.value.input
+  if(!userInfo.avatar&& !userInfo.nickName.trim()){
+    uni.showToast({
+      title: '请输入昵称和姓名',
+      icon: 'none',
+    })
+    return
+  }
+  uni.showLoading()
+  wx.login({
+    success: async({code})=> {
+     const avatar =await uploadImage()
+     console.log(avatar)
+      // const res =await ailogin({code,...userInfo})
+      // user.setProfile(res.data)
+      uni.hideLoading()
+
+    },fail:()=>{
+      uni.hideLoading()
+    }
   })
 }
-const formSubmit = () => {}
 </script>
 <template>
   <view class="login-page">
@@ -28,8 +68,8 @@ const formSubmit = () => {}
       <image class="user" :src="computeAvatar" mode="scaleToFill" />
     </button>
     <form class="form-submit" @submit="formSubmit">
-      <input v-model="userInfo.name" class="input-style" placeholder="请输入昵称" />
-      <button class="submit-button" :loading="isLoading" @click="toLogin">登录</button>
+      <input type="nickname" class="input-style" name="input" placeholder="请输入昵称"/>
+      <button class="submit-button" form-type="submit"  :loading="isLoading" >登录</button>
     </form>
   </view>
 </template>
