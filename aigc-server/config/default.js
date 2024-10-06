@@ -1,8 +1,8 @@
 const dbConfig={
     database:'aigc',//数据库名
     userName:'aigc',
-    password:'YyMT5CMEZ8b8cNwc',
-    host:'38.55.232.204',
+    password:'aigc123',
+    host:process.env.IP,
     dialect:'mysql',
     port:3306
 }
@@ -14,6 +14,10 @@ const weixin ={
 const zhipu={
     apiKey:'ba327cfbea9af50f529e4dbd3a684e7f.yIuRcA4XI4R1w8LU',
 }
+const userToken={
+    secretkey: "key",
+    expiresIn: "2d",
+  }
 // 语音识别密钥
 const Aliyunaudio={
     accessKeyId:'LTAI5tAvunE3RBmQLqAstWW4',
@@ -24,5 +28,6 @@ module.exports={
     dbConfig,
     weixin,
     zhipu,
-    Aliyunaudio
+    Aliyunaudio,
+    userToken
 }

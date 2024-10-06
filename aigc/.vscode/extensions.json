@@ -8,6 +8,7 @@
     "vue.vscode-typescript-vue-plugin", // vue3 ts 插件
     "editorconfig.editorconfig", // editorconfig
     "dbaeumer.vscode-eslint", // eslint
-    "esbenp.prettier-vscode" // prettier
+    "esbenp.prettier-vscode",
+    "xabikos.reactsnippets" // prettier
   ]
 }

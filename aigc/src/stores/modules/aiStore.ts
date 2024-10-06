@@ -1,8 +1,10 @@
 /* eslint-disable */
 // prettier-ignore
 import { defineStore } from 'pinia'
-import { getChatAi } from '@/api/chatAi'
+import { getChatAi,saveChatRecord } from '@/api/chatAi'
 import {inProgress} from './isProgress'
+import { useMemberStore } from './user'
+const user = useMemberStore()
 // 定义 Store
 export const aiChatStore = defineStore(
   'aiChatStore',
@@ -37,16 +39,17 @@ export const aiChatStore = defineStore(
       // 请求服务器端进行发送
       try {
         await getChatAi({ messages: messages.value }, true)
+        inProgress().setProcess(false)//对话完毕
       } catch (error) {
         messages.value[messages.value.length - 1].finish_reason= 'stop'
         messages.value[messages.value.length - 1].content = '服务器异常,请稍后重试'
 // .        console.log(error)
-        inProgress().setProcess(false)
+        inProgress().setProcess(false)//对话完毕
 
       }
-      console.log('完整回复',messages.value)
+      // console.log('完整回复',messages.value)
     }
-    const handleText = (objVal) =>{
+    const handleText = async(objVal) =>{
       // 服务器开始响应
       messages.value[messages.value.length - 1].finish_reason= 'respond'
       // 把大模型的文本追加不断拼接
@@ -70,6 +73,16 @@ export const aiChatStore = defineStore(
           }
         })
         inProgress().setProcess(false)
+        const uploadChat = [...messages.value.slice(-2)]
+        console.log('上传记录',uploadChat)
+        const res= await saveChatRecord({ messages: uploadChat,sessionId:user.sessionId })//拿到刚刚发送的对话
+        console.log('对话',res)
+        if(user.newChat){
+          console.log(user.chatHistory)
+          user.chatHistory.unshift(res.data)
+          user.sessionId=res.data.session_id
+          user.setNewChat(false)
+        }
       }
     }
     // 记得 return

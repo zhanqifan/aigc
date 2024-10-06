@@ -6,7 +6,7 @@ import { SpeechTranscription } from '@/voice/st'
 import { onLoad } from '@dcloudio/uni-app'
 const aiChat = aiChatStore()
 const show = ref(true)
-const Progress= inProgress()
+const Progress = inProgress()
 const aliVoice = ref() //阿里云实例化
 const textarea = reactive({
   autoHeight: true, //自动增高
@@ -82,9 +82,8 @@ audio.onFrameRecorded((e) => {
 })
 // 录音出现错误
 audio.onError((e) => {
-  showAudio.value=false
+  showAudio.value = false
   aliVoice.value.shutdown()
-
 })
 // 监听录音结束
 // audio.onStop((res) => {
@@ -94,43 +93,83 @@ audio.onError((e) => {
 // 手指放开
 const touchend = () => {
   showAudio.value = false
-  aliVoice.value.shutdown()//关闭阿里云语音监听
-  audio.stop()//录音功能关闭
+  aliVoice.value.shutdown() //关闭阿里云语音监听
+  audio.stop() //录音功能关闭
   // 录制结束取出文字发给大模型
-  if(storageArr.value.length > 0){
+  if (storageArr.value.length > 0) {
+    inpContent.value = storageArr.value.map((item) => item.result).join(' ')
 
-				inpContent.value = storageArr.value.map(item=>item.result).join(' ')
-
-				sengMsg()
-		}
+    sengMsg()
+  }
 }
-	// 监听录音结束
-	audio.onStop(res=>{
-		console.log('录音结束了');
-		console.log(res);
-		showAudio.value = false
-		// 强制关闭阿里云语音识别监听
-    aliVoice.value.shutdown()
-		// 录制结束取出文字发送大模型
-
-	})
+// 监听录音结束
+audio.onStop((res) => {
+  console.log('录音结束了')
+  console.log(res)
+  showAudio.value = false
+  // 强制关闭阿里云语音识别监听
+  aliVoice.value.shutdown()
+  // 录制结束取出文字发送大模型
+})
 onMounted(async () => {
- setTimeout(()=>{
-  const query = uni.createSelectorQuery().in(instance) //获取当前页面的节点
-  query
-    .select('.input-content')
-    .boundingClientRect((res: any) => {
-      //获取元素信息
-      textareaHeight.value = res.height + 'px' //修改元素高度
-    })
-    .exec() //执行
-  },100)
+  setTimeout(() => {
+    const query = uni.createSelectorQuery().in(instance) //获取当前页面的节点
+    query
+      .select('.input-content')
+      .boundingClientRect((res: any) => {
+        //获取元素信息
+        textareaHeight.value = res.height + 'px' //修改元素高度
+      })
+      .exec() //执行
+  }, 100)
 })
 const getAudioAuthorize = (e: boolean) => {
   uni.authorize({
     scope: 'scope.record',
-    success() {
+    async success() {
       show.value = e
+      if (show.value) return //非语言模式 不需要授权
+      const token = await AliAudioToken()
+      const st = new SpeechTranscription({
+        url: 'wss://nls-gateway.cn-shanghai.aliyuncs.com/ws/v1',
+        token: token.data,
+        appkey: 'O8YHjVFyH6SX4nki',
+      })
+      aliVoice.value = st
+      // 实时语音识别中间结果(边说边出文字)
+      st.on('changed', (msg: any) => {
+        console.log('Client recv changed:', msg)
+        const { payload } = JSON.parse(msg)
+        const find = storageArr.value.findIndex((item) => item.index === payload.index)
+        if (find >= 0) {
+          storageArr.value[find].result = payload.result
+        } else {
+          storageArr.value.push(payload)
+        }
+      })
+      // 提示句子开始。
+      st.on('begin', (msg: any) => {
+        console.log('Client recv 开始:', msg)
+      })
+      // 提示句子结束。纠正
+      st.on('end', (msg: any) => {
+        console.log('Client recv 结束:', msg)
+        const { payload } = JSON.parse(msg)
+        const find = storageArr.value.findIndex((item) => item.index === payload.index)
+        if (find >= 0) {
+          storageArr.value[find].result = payload.result
+        } else {
+          storageArr.value.push(payload)
+        }
+      })
+
+      st.on('failed', (msg: any) => {
+        console.log('Client recv 失败:', msg)
+        uni.showToast({
+          icon: 'none',
+          title: '录音出现错误',
+        })
+      })
     },
     fail: (fail) => {
       uni.showToast({
@@ -142,49 +181,7 @@ const getAudioAuthorize = (e: boolean) => {
   })
 }
 const storageArr = ref<any>([])
-// onLoad(async () => {
-//   const token = await AliAudioToken()
-//   const st = new SpeechTranscription({
-//     url: 'wss://nls-gateway.cn-shanghai.aliyuncs.com/ws/v1',
-//     token: token.data,
-//     appkey: 'O8YHjVFyH6SX4nki',
-//   })
-//   aliVoice.value = st
-//   // 实时语音识别中间结果(边说边出文字)
-//   st.on('changed', (msg: any) => {
-//     console.log('Client recv changed:', msg)
-//     const {payload} =JSON.parse(msg)
-//     const find= storageArr.value.findIndex(item=>item.index===payload.index)
-//     if(find>=0){
-//       storageArr.value[find].result=payload.result
-//     }else{
-//       storageArr.value.push(payload)
-//     }
-//   })
-//   // 提示句子开始。
-//   st.on('begin', (msg: any) => {
-//     console.log('Client recv 开始:', msg)
-//   })
-//   // 提示句子结束。纠正
-//   st.on('end', (msg: any) => {
-//     console.log('Client recv 结束:', msg)
-//     const {payload} =JSON.parse(msg)
-//     const find= storageArr.value.findIndex(item=>item.index===payload.index)
-//     if(find>=0){
-//       storageArr.value[find].result=payload.result
-//     }else{
-//       storageArr.value.push(payload)
-//     }
-//   })
-
-//   st.on('failed', (msg: any) => {
-//     console.log('Client recv 失败:', msg)
-//     uni.showToast({
-//       icon:'none',
-//       title:'录音出现错误'
-//     })
-//   })
-// })
+onLoad(async () => {})
 </script>
 <template>
   <view class="input-box-area">
@@ -206,14 +203,16 @@ const storageArr = ref<any>([])
         @linechange="lineChange"
       ></textarea>
     </view>
-    <view class="speech-sound" v-show="!show" @longpress="longpress" @touchend="touchend"
-      >{{Progress.isProcess?'正在输出内容...':'按住说话'  }}</view
-    >
+    <view class="speech-sound" v-show="!show" @longpress="longpress" @touchend="touchend">{{
+      Progress.isProcess ? '正在输出内容...' : '按住说话'
+    }}</view>
     <image src="@/static/fasong.png" mode="widthFix" @click="sengMsg" />
   </view>
   <!-- 语言录制弹窗 -->
   <view class="mask-view" v-if="showAudio"> </view>
-  <view class="record-text" v-if="showAudio">{{ storageArr.map(item=>item.result).join(' ') }}</view>
+  <view class="record-text" v-if="showAudio">{{
+    storageArr.map((item) => item.result).join(' ')
+  }}</view>
   <view class="recording-pop-up" v-if="showAudio">
     <view class="release">松开发送</view>
     <view class="in-recognition">正在识别声音</view>

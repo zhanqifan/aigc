@@ -1,19 +1,55 @@
 <script setup lang="ts">
 import { buttonPosition } from '@/hook/buttonPosition'
+import { useMemberStore } from '@/stores/modules/user'
+import { aiChatStore } from '@/stores/modules/aiStore'
+import { selctNavIndex } from '@/stores/modules/tabBar'
+import { getChatDetail } from '@/api/chatAi'
 const { but_height, but_top, but_button } = buttonPosition()
+const user = useMemberStore()
+const aiChat = aiChatStore()
+const selIndex = selctNavIndex()
+// 开启新会话为true
+const openChat = () => {
+  user.setNewChat(true)
+  user.sessionId = '' //会话id置空调接口时候让后端重新生成
+  aiChat.messages = [] //清空当前对话
+  selIndex.setNavIndex(1) //指向会话界面
+}
+const getDetail = async (sessionId: string) => {
+  user.setNewChat(false)
+  user.sessionId = sessionId
+  const res = await getChatDetail({ sessionId })
+  aiChat.messages = res.data
+  selIndex.setNavIndex(1) //指向会话界面
+}
 </script>
 <template>
   <view class="modal-backdrop"></view>
   <view class="person-center">
     <view class="user-info">
-      <image src="@/static/logo.png" mode="scaleToFill" />
+      <image :src="user.profile?.avatar" mode="scaleToFill" />
+      <text style="margin-top: 10rpx">{{ user.profile?.nickName }}</text>
     </view>
-    <text class="new-dialogue">开启新对话</text>
-    <text class="history">对话历史</text>
-    <scroll-view scroll-y enable-passive enhance type="list" class="scorll-height">
-      <view class="history-list" v-for="(item, index) in 10" :key="index">
-        <text class="history-item-text ellipsis-one">今天有什么新闻呢11111111111？</text>
-        <text class="history-item-data">2024-07-31</text>
+    <text class="new-dialogue" @click="openChat">开启新对话</text>
+    <text class="history" v-if="user.chatHistory.length > 0">对话历史</text>
+    <scroll-view
+      scroll-y
+      v-if="user?.chatHistory?.length > 0"
+      enable-passive
+      enhance
+      type="list"
+      class="scorll-height"
+    >
+      <view
+        class="history-list"
+        v-for="(item, index) in user.chatHistory"
+        @click="getDetail(item.session_id)"
+        :key="index"
+      >
+        <block v-for="(e, index) in item.message" :key="index">
+          <text class="history-item-text ellipsis-one">{{ e.content }}</text>
+        </block>
+        <text class="history-item-data">{{ item.time }}</text>
       </view>
     </scroll-view>
   </view>
@@ -77,6 +113,7 @@ const { but_height, but_top, but_button } = buttonPosition()
       margin: 20rpx;
       padding: 20rpx;
       justify-content: space-between;
+      background-color: #fff;
       align-items: center;
       .history-item-data {
         color: #9d9eab;

@@ -24,3 +24,26 @@ export const AliAudioToken = () => {
     method: 'GET',
   })
 }
+// 存储聊天记录
+export const saveChatRecord = (params: any) => {
+  return request<any>({
+    url: '/ai/saveChatRecord',
+    method: 'POST',
+    data: params,
+  })
+}
+// 获取用户全部聊天记录
+export const userChatList = () => {
+  return request<any>({
+    url: '/ai/getChatRecord',
+    method: 'GET',
+  })
+}
+// 获取单条id
+export const getChatDetail = (data: any) => {
+  return request<any>({
+    url: '/ai/getChatDetail',
+    method: 'GET',
+    data,
+  })
+}

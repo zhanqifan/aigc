@@ -3,6 +3,7 @@ const User = require('@/model/user')
 const path =require('path')
 const UserService = require('@/service/user')
 const JWT = require('@/config/jwt')
+
 class UserController {
     // 用户登录
     async wxLogin(ctx){
@@ -29,7 +30,6 @@ class UserController {
             nickName,
             avatar,
             openid,
-            avatarPath
         })
     }
     // 生成token
@@ -37,13 +37,14 @@ class UserController {
     ctx.send({data:{openid,nickName,avatar,token}})
 
     }  
+    // 头像
     async sotregeAvatar(ctx){
         const file =  ctx.file
-  const validMimeTypes = ['image/jpeg', 'image/png'];
+        console.log(file)
+         const validMimeTypes = ['image/jpeg', 'image/png'];
         if(!validMimeTypes.includes(file.mimetype))return ctx.send({code:400,msg:'上传文件类型不为图片'})
-        const avatarPath = path.join('/public/avataruploads/', file.filename); // 头像的保存路径
-        console.log(avatarPath)
-        ctx.send({data:{avatarPath}})
+        const avatar = `${process.env.BASE_URL}/avataruploads/${file.originalname}` ; // 头像的保存路径
+        ctx.send({data:{avatar}})
     }
 }
 
