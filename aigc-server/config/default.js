@@ -1,7 +1,7 @@
 const dbConfig={
-    database:'aigc',//数据库名
-    userName:'aigc',
-    password:'aigc123',
+    database:'',//数据库名
+    userName:'',
+    password:'',
     host:process.env.IP,
     dialect:'mysql',
     port:3306
